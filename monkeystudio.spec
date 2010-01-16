@@ -3,7 +3,7 @@
 
 Name: monkeystudio
 Version: 1.8.4.0
-Release: %mkrel -c %beta %{svn}.1
+Release: %mkrel -c %beta %{svn}.2
 Summary: Free crossplatform Qt 4 IDE
 Group: Development/KDE and Qt
 License: GPLv3
