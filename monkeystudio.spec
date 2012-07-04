@@ -1,15 +1,14 @@
-%define beta b2
-%define svn svn3482
+%define Werror_cflags %nil
 
 Name: monkeystudio
-Version: 1.8.4.0
-Release: %mkrel -c %beta %{svn}.3
+
+Version: 1.9.0.2
+Release: 1
 Summary: Free crossplatform Qt 4 IDE
 Group: Development/KDE and Qt
 License: GPLv3
 URL: http://www.monkeystudio.org/
-Source0: http://monkeystudio.googlecode.com/files/mks_%{version}%{beta}-%{svn}-src.tar.gz
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
+Source0: https://monkeystudio.googlecode.com/files/mks_%{version}-src.tar.gz
 
 BuildRequires:  qt4-devel >= 4.4.0
 BuildRequires:  desktop-file-utils
@@ -28,38 +27,40 @@ unsightly configuration files. MonkyStudio is also a multi language
 code editor too ( javascript, xml, ... ).
 
 %prep
-%setup -q -n mks_%{version}%{beta}-%{svn}
-chmod 0644 datas/templates/Python/PyQt\ Gui/{\$Form\ File\ Name\$.ui,template.ini,\$Project\ Name\$.xpyqt}
-chmod 0644 datas/templates/Python/Qt\ Form/{\$Class\ Name\$.ui,template.ini}
-chmod 0644 datas/templates/Python/PyQt\ Console/{template.ini,\$Project\ Name\$.xpyqt}
-chmod 0644 datas/templates/Python/QObject\ Herited\ Class/template.ini
-chmod 0644 plugins/interpreter/Python/src/*.{cpp,h}
-chmod 0644 plugins/xup/PyQt/src/PyQt.{cpp,h}
-chmod 0755 datas/apis/tags2api.py
+%setup -q -n mks_%{version}-src
+# Fix files permissions
+find monkey/src -type f -exec chmod 0644 {} \;
+find datas/templates/ -type f -exec chmod 0644 {} \;
+find plugins/ -type f -exec chmod 0644 {} \;
+chmod 0755 datas/apis/Tools/tags2api.py
 
+# For the "hidden files" rpmlint warning
+sed -i -e 's/\.ui/ui/' -e 's/\.moc/moc/' -e 's/\.rcc/rcc/' config.pri
+sed -i -e 's/\.ui/ui/' -e 's/\.moc/moc/' -e 's/\.rcc/rcc/' plugins/plugins.pri
+
+# End of file encoding
+sed -i -e 's/\r//' dev-readme 'datas/templates/Python/Qt Form - Single Inheritance/$Class Name$.ui' 'datas/templates/C++/Qt Form - No Inheritance/$Class Name$.ui' 'datas/templates/Python/PyQt Gui/$Form File Name$.ui'
+
+# UpdateChecker is removed because yum will take care of updates
 sed -i -e 's/UpdateChecker//' plugins/base/base.pro
 
-sed -i -e 's/\r//' 'datas/templates/Python/Qt Form/template.ini' 'datas/templates/Python/Qt Form/$Class Name$.ui' readme.txt 'datas/templates/Python/PyQt Gui/$Form File Name$.ui' dev-readme 'datas/apis/tags2api.py'
-sed -i -e 's/\.ui/ui/' -e 's/\.moc/moc/' -e 's/\.rcc/rcc/' config.pri
-sed -i -e 's/\.moc/moc/' plugins/plugins.pri
+# Remove automatic doc install to let the spec file do it
+sed -i -e 's/INSTALL.*monkey_docs$/INSTALLS = monkey_datas/' installs.pri
+
 
 %build
 %{qmake_qt4} prefix=%{_prefix} plugins=%{_libdir} system_qscintilla=1
 %make
 
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 %{qmake_qt4} prefix=%{_prefix} plugins=%{_libdir} system_qscintilla=1
-make install INSTALL_ROOT=$RPM_BUILD_ROOT
+make install INSTALL_ROOT=%{buildroot}
 desktop-file-install --vendor="" \
-  --dir $RPM_BUILD_ROOT%{_datadir}/applications/ \
-  $RPM_BUILD_ROOT%{_datadir}/applications/%{name}.desktop
-
-%clean
-rm -rf $RPM_BUILD_ROOT
+  --dir %{buildroot}%{_datadir}/applications/ \
+  %{buildroot}%{_datadir}/applications/%{name}.desktop
 
 %files
-%defattr(-,root,root,-)
 %doc Doxyfile GPL-3 readme.txt dev-readme
 %{_bindir}/%{name}
 %{_libdir}/%{name}
