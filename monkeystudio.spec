@@ -7,7 +7,7 @@ Release: 1
 Summary: Free crossplatform Qt 4 IDE
 Group: Development/KDE and Qt
 License: GPLv3
-URL: http://www.monkeystudio.org/
+URL: https://www.monkeystudio.org/
 Source0: https://monkeystudio.googlecode.com/files/mks_%{version}-src.tar.gz
 
 BuildRequires:  qt4-devel >= 4.4.0
