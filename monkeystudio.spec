@@ -10,6 +10,7 @@ License: GPLv3
 URL: https://www.monkeystudio.org/
 Source0: https://monkeystudio.googlecode.com/files/mks_%{version}-src.tar.gz
 
+BuildRequires:	make
 BuildRequires:  qt4-devel >= 4.4.0
 BuildRequires:  desktop-file-utils
 BuildRequires:  qscintilla-qt4-devel
